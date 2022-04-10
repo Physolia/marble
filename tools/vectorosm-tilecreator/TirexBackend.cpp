@@ -20,7 +20,9 @@ TirexBackend::TirexBackend(QObject *parent)
 {
     // setup command socket
     const auto socketFd = getenv("TIREX_BACKEND_SOCKET_FILENO");
-    if (socketFd) {
+    if (socketFd && std::strcmp(socketFd, "STANDALONE") == 0) {
+        qWarning() << "Running in standalone test mode!";
+    } else if (socketFd) {
         m_commandSocketFd = std::atoi(socketFd);
         m_socketNotifier = new QSocketNotifier(m_commandSocketFd, QSocketNotifier::Read, this);
         connect(m_socketNotifier, &QSocketNotifier::activated, this, &TirexBackend::commandReadyRead);
